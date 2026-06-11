@@ -1,0 +1,204 @@
+/* public/css/public.css */
+
+:root {
+    --timingrun-green: #99cc33;
+    --timingrun-orange: #ff9900;
+    --timingrun-dark-bg: rgba(15, 15, 15, 0.8);
+}
+
+body {
+    background-image: url('/images/sfondo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #f0f0f0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    /* Aggiunge spazio per header e footer fissi */
+    padding-top: 70px; /* Altezza circa dell'header */
+    padding-bottom: 50px; /* Altezza circa del footer */
+}
+
+.main-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--timingrun-green);
+}
+
+a {
+    color: var(--timingrun-green);
+    text-decoration: none;
+}
+
+a:hover {
+    color: #bfff40;
+    text-decoration: none;
+}
+
+.card, .list-group-item {
+    background-color: var(--timingrun-dark-bg) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f0f0f0;
+}
+
+.list-group-item-action:hover, .list-group-item-action:focus {
+    background-color: rgba(30, 30, 30, 0.9) !important;
+}
+
+.form-control {
+    background-color: #333;
+    border-color: #555;
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: #444;
+    border-color: var(--timingrun-green);
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(153, 204, 51, 0.25);
+}
+
+.form-control::placeholder {
+    color: #888;
+}
+
+.btn-primary {
+    background-color: var(--timingrun-green);
+    border-color: var(--timingrun-green);
+    color: #111;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    background-color: #82b32b;
+    border-color: #82b32b;
+    color: #000;
+}
+
+.badge.bg-primary {
+    background-color: var(--timingrun-orange) !important;
+    color: #111 !important;
+}
+
+/* Stili per header e footer fissi */
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: var(--timingrun-dark-bg);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1030;
+}
+
+.site-title-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.site-title-link:hover {
+    opacity: 0.8;
+}
+
+.site-title-icon {
+    font-size: 2rem;
+    color: var(--timingrun-orange);
+}
+
+.site-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #e0e0e0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.site-title-highlight {
+    color: var(--timingrun-green);
+}
+
+.site-title-secondary {
+    font-size: 1.5rem; /* Più piccolo del titolo principale */
+    font-weight: 400;
+    color: var(--timingrun-orange);
+}
+
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--timingrun-dark-bg);
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1030;
+    color: #a0a0a0; /* Colore più chiaro per il testo del footer */
+}
+
+/* Overlay con foto di atleti per lo sfondo */
+.background-photo-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url('/images/athletes-collage.png'); /* IMMAGINE DA CREARE */
+    background-size: cover;
+    background-position: center center;
+    opacity: 0.08; /* Molto leggero per non disturbare */
+    z-index: -1; /* Posizionato dietro al contenuto principale */
+}
+
+/* Media Queries per il design responsive (mobile) */
+@media (max-width: 767.98px) {
+    body {
+        /* Riduci il padding per l'header più piccolo su mobile, risolvendo la sovrapposizione */
+        padding-top: 60px;
+    }
+
+    .site-header {
+        padding: 0.25rem 1rem;
+    }
+
+    .site-title-icon {
+        font-size: 1.5rem;
+    }
+
+    .site-title {
+        font-size: 1.5rem;
+    }
+
+    .site-title-secondary {
+        font-size: 1rem;
+    }
+}
+
+/* Overlay per foto commerciali non cliccabili */
+.commercial-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    color: rgba(255, 255, 255, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer; /* Indica che c'è un'interazione, anche se non apre la modale */
+}
+
+.photo-card:hover .commercial-overlay {
+    opacity: 1;
+}
+}

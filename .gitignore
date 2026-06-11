@@ -1,0 +1,34 @@
+# File e cartelle generati da Laravel
+/bootstrap/cache/
+/node_modules/
+/public/build/
+/public/hot
+/public/storage
+/storage/app/
+/storage/framework/
+/storage/logs/
+/vendor/
+
+# File di ambiente - NON versionare MAI questo file!
+.env
+.env.backup
+
+# File specifici del sistema operativo e degli editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing e coverage
+.phpunit.result.cache
+/coverage/
+
+# Homestead / Vagrant
+Homestead.json
+Homestead.yaml
+.vagrant/
