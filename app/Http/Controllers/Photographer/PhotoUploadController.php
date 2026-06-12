@@ -25,6 +25,19 @@ class PhotoUploadController extends Controller
         $file = $request->file('photo');
         $originalName = $file->getClientOriginalName();
 
+        // Controlla se una foto con lo stesso nome originale esiste già per questo evento.
+        $existingPhoto = Photo::where('event_id', $event->id)
+                              ->where('original_name', $originalName)
+                              ->first();
+
+        if ($existingPhoto) {
+            return response()->json([
+                'success' => false,
+                'skipped' => true,
+                'message' => 'Foto già presente.',
+            ]);
+        }
+
         // Genera un nome file univoco preservando l'estensione originale.
         // Il metodo store() di default non aggiunge l'estensione.
         $filename = Str::random(40) . '.' . $file->extension();
@@ -36,6 +49,7 @@ class PhotoUploadController extends Controller
         $photo = Photo::create([
             'user_id' => $photographerId,
             'event_id' => $event->id,
+            'original_name' => $originalName,
             'original_path' => $path,
             'status' => 'pending', // Verrà elaborata in un secondo momento
             'photo_usage_type' => $event->photo_usage_type, // Imposta il tipo di utilizzo predefinito dall'evento

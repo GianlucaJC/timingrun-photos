@@ -56,8 +56,18 @@
     </div>
 
     <div id="upload-progress-container" class="mt-4" style="display: none;">
-        <h3>Progresso Caricamento</h3>
-        <div id="progress-list"></div>
+        <div id="global-progress-section" class="mb-4">
+            <h5>Progresso Totale</h5>
+            <div class="progress" style="height: 25px;">
+                <div id="global-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
+            <small id="global-progress-text" class="d-block text-end mt-1"></small>
+        </div>
+
+        <h5 class="mt-3">Caricamenti individuali</h5>
+        <div id="progress-list" style="max-height: 250px; overflow-y: auto; padding-right: 15px;">
+            {{-- I progress bar individuali verranno aggiunti qui dal JS --}}
+        </div>
     </div>
 
     <div class="card mt-4">
@@ -159,20 +169,41 @@ document.addEventListener('DOMContentLoaded', function () {
     const progressList = document.getElementById('progress-list');
     const uploadUrl = form.action;
 
+    // Elementi per la progress bar globale
+    const globalProgressBar = document.getElementById('global-progress-bar');
+    const globalProgressText = document.getElementById('global-progress-text');
+
+    let totalSize = 0;
+    let totalUploaded = 0;
+    const uploadedPerFile = {};
+
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const files = input.files;
         if (files.length === 0) {
-            alert('Per favore, seleziona almeno una foto.');
+            Swal.fire('Attenzione', 'Per favore, seleziona almeno una foto.', 'warning');
             return;
         }
 
+        // Reset per i caricamenti multipli
         progressContainer.style.display = 'block';
-        progressList.innerHTML = ''; // Pulisce i caricamenti precedenti
+        progressList.innerHTML = '';
+        totalSize = Array.from(files).reduce((acc, file) => acc + file.size, 0);
+        totalUploaded = 0;
+        Object.keys(uploadedPerFile).forEach(key => delete uploadedPerFile[key]);
+
+        // Reset e mostra la progress bar globale
+        globalProgressBar.style.width = '0%';
+        globalProgressBar.innerText = '0%';
+        globalProgressBar.classList.remove('bg-success', 'bg-danger');
+        globalProgressBar.classList.add('progress-bar-striped', 'progress-bar-animated');
+        globalProgressText.innerText = `Inizio caricamento di ${files.length} file...`;
 
         Array.from(files).forEach((file, index) => {
             const progressElement = document.createElement('div');
+            // Aggiungo un ID all'elemento contenitore per poterlo rimuovere
+            progressElement.id = `progress-element-${index}`;
             progressElement.innerHTML = `
                 <div class="mb-2">
                     <small>${file.name}</small>
@@ -188,8 +219,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     async function uploadFiles(files) {
-        for (let i = 0; i < files.length; i++) {
-            await uploadFile(files[i], i);
+        // Esegue tutti i caricamenti in parallelo
+        const uploadPromises = Array.from(files).map((file, index) => uploadFile(file, index));
+        
+        try {
+            await Promise.all(uploadPromises);
+            // Questo blocco viene eseguito se TUTTI i caricamenti hanno successo
+            globalProgressBar.classList.remove('progress-bar-striped', 'progress-bar-animated');
+            globalProgressBar.classList.add('bg-success');
+            globalProgressBar.innerText = 'Completato!';
+            globalProgressText.innerText = `Tutti i ${files.length} file sono stati caricati con successo.`;
+        } catch (error) {
+            // Questo blocco viene eseguito se ANCHE SOLO UNO dei caricamenti fallisce
+            globalProgressBar.classList.remove('progress-bar-striped', 'progress-bar-animated');
+            globalProgressBar.classList.add('bg-danger');
+            globalProgressBar.innerText = 'Errore';
+            globalProgressText.innerText = 'Alcuni file non sono stati caricati. Controlla la lista qui sotto.';
+            console.error("Uno o più caricamenti sono falliti.", error);
         }
     }
 
@@ -202,19 +248,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
             axios.post(uploadUrl, formData, {
                 onUploadProgress: progressEvent => {
+                    // Progresso individuale
                     const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     progressBar.style.width = percent + '%';
                     progressBar.innerText = percent + '%';
+
+                    // Progresso globale
+                    uploadedPerFile[index] = progressEvent.loaded;
+                    totalUploaded = Object.values(uploadedPerFile).reduce((acc, loaded) => acc + loaded, 0);
+                    const globalPercent = Math.round((totalUploaded * 100) / totalSize);
+                    
+                    globalProgressBar.style.width = globalPercent + '%';
+                    globalProgressBar.innerText = globalPercent + '%';
+                    
+                    globalProgressText.innerText = `Caricati ${Math.round(totalUploaded / 1024 / 1024)} MB di ${Math.round(totalSize / 1024 / 1024)} MB`;
                 }
             }).then(response => {
-                progressBar.classList.add('bg-success');
-                progressBar.innerText = 'Completato';
-                resolve(response.data);
+                if (response.data.success) {
+                    progressBar.classList.add('bg-success');
+                    progressBar.innerText = 'Completato';
+                    // Rimuove la barra di progresso dopo 2 secondi con una dissolvenza
+                    setTimeout(() => {
+                        const elementToRemove = document.getElementById(`progress-element-${index}`);
+                        if (elementToRemove) {
+                            elementToRemove.style.transition = 'opacity 0.5s ease';
+                            elementToRemove.style.opacity = '0';
+                            setTimeout(() => elementToRemove.remove(), 500);
+                        }
+                    }, 2000);
+                } else if (response.data.skipped) {
+                    progressBar.classList.remove('progress-bar-animated', 'progress-bar-striped');
+                    progressBar.classList.add('bg-info', 'text-dark');
+                    progressBar.innerText = 'Già presente';
+                }
+                resolve(response.data); // Risolvo comunque per non far fallire Promise.all
             }).catch(error => {
                 progressBar.classList.add('bg-danger');
                 progressBar.innerText = 'Errore';
                 console.error('Errore caricamento per ' + file.name + ':', error.response?.data);
-                reject(error);
+                reject(error); // Rifiuta la promise per far scattare il catch in Promise.all
             });
         });
     }
