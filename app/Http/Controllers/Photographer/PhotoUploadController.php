@@ -27,7 +27,7 @@ class PhotoUploadController extends Controller
 
         // Genera un nome file univoco preservando l'estensione originale.
         // Il metodo store() di default non aggiunge l'estensione.
-        $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+        $filename = Str::random(40) . '.' . $file->extension();
 
         // Salva il file in: storage/app/public/events/{event_id}/originals
         $path = $file->storeAs("events/{$event->id}/originals", $filename, 'public');
