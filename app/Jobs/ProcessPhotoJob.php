@@ -52,7 +52,8 @@ class ProcessPhotoJob implements ShouldQueue
 
             $originalPath = $this->photo->original_path;            
             $filename = basename($originalPath);
-            $eventDir = dirname(dirname($originalPath)); // Es: "events/1"
+            // Percorso più robusto basato sull'ID dell'evento, invece di parsare la stringa.
+            $eventDir = 'events/' . $this->photo->event_id;
 
             // Legge l'immagine direttamente dal percorso del file per ottimizzare la memoria
             Log::debug("Percorso originale: " . Storage::disk('public')->path($originalPath));
