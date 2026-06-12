@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Jobs\ProcessPhotoJob;
 use App\Models\Photo;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -24,8 +25,12 @@ class PhotoUploadController extends Controller
         $file = $request->file('photo');
         $originalName = $file->getClientOriginalName();
 
+        // Genera un nome file univoco preservando l'estensione originale.
+        // Il metodo store() di default non aggiunge l'estensione.
+        $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+
         // Salva il file in: storage/app/public/events/{event_id}/originals
-        $path = $file->store("events/{$event->id}/originals", 'public');
+        $path = $file->storeAs("events/{$event->id}/originals", $filename, 'public');
 
         // Crea il record della foto nel database
         $photo = Photo::create([

@@ -21,11 +21,7 @@
                 </a>
             @empty
                 <div class="list-group-item">
-                    @if(session('error'))
-                        <p class="mb-0 text-danger">{{ session('error') }}</p>
-                    @else
-                        <p class="mb-0">Nessun evento concluso trovato. L'API non ha restituito eventi o non ci sono eventi che corrispondono ai criteri (pubblicati e con data passata).</p>
-                    @endif
+                    <p class="mb-0">Nessun evento disponibile al momento.</p>
                 </div>
             @endforelse
         </div>

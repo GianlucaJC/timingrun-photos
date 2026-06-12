@@ -22,8 +22,9 @@ class EventController extends Controller
         ])->get(config('services.timingrun.api_url') . '/api_events.php');
 
         if ($response->failed()) {
-            Log::error('Fallimento nel recuperare gli eventi dall\'API di TimingRun.', ['status' => $response->status(), 'body' => $response->body()]);
-            session()->flash('error', 'Impossibile caricare la lista degli eventi al momento.');
+            $status = $response->status();
+            Log::error('Fallimento nel recuperare gli eventi dall\'API di TimingRun.', ['status' => $status, 'body' => $response->body()]);
+            session()->flash('error', "Impossibile sincronizzare con il servizio eventi (Errore: {$status}). Vengono mostrati gli ultimi dati disponibili.");
         } else {
             $apiEvents = $response->json() ?? [];
 
