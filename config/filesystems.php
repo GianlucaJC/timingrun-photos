@@ -38,8 +38,9 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Modificato per salvare direttamente in public/uploads, eliminando la necessità di symlink.
+            'root' => public_path('uploads'),
+            'url' => env('APP_URL').'/uploads',
             'visibility' => 'public',
             'throw' => false,
         ],
