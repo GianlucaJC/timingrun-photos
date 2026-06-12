@@ -93,11 +93,13 @@
                                     <div class="col-6 col-md-4 col-lg-3 mb-4" id="photo-card-{{ $photo->id }}">
                                         <div class="card h-100">
                                             <div class="position-relative">
-                                                <img src="{{ ($photo->admin_thumbnail_path ? Storage::url($photo->admin_thumbnail_path) : Storage::url($photo->original_path)) . '?v=' . $photo->updated_at->timestamp }}"
+                                                {{-- Modifica per forzare il percorso corretto, bypassando la cache di configurazione di Storage::url() --}}
+                                                <img src="{{ asset('uploads/' . ($photo->admin_thumbnail_path ?: $photo->original_path)) . '?v=' . $photo->updated_at->timestamp }}"
                                                      class="card-img-top" alt="Thumbnail" style="aspect-ratio: 4/3; object-fit: cover; cursor: pointer; {{ $photo->status !== 'published' ? 'opacity: 0.5;' : '' }}"
                                                      data-bs-toggle="modal"
                                                      data-bs-target="#photoModal"
-                                                     data-preview-src="{{ Storage::url($photo->original_path) . '?v=' . $photo->updated_at->timestamp }}"
+                                                     {{-- Modifica per forzare il percorso corretto anche nell'anteprima --}}
+                                                     data-preview-src="{{ asset('uploads/' . $photo->original_path) . '?v=' . $photo->updated_at->timestamp }}"
                                                 >
                                                 @if($photo->status !== 'published')
                                                     <span class="position-absolute top-0 start-50 translate-middle-x badge rounded-pill bg-warning text-dark mt-2">
