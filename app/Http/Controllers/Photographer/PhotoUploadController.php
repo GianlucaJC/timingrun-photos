@@ -9,6 +9,7 @@ use App\Models\Photo;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PhotoUploadController extends Controller
@@ -38,9 +39,21 @@ class PhotoUploadController extends Controller
             ]);
         }
 
+        // Logica robusta per determinare l'estensione del file.
+        // 1. Prova con il metodo più affidabile basato sul mime-type (richiede l'estensione PHP `fileinfo`).
+        $extension = $file->extension();
+        // 2. Se fallisce, usa l'estensione fornita dal client come fallback.
+        if (empty($extension)) {
+            $extension = $file->getClientOriginalExtension();
+        }
+        // 3. Logga un avviso se l'estensione è ancora vuota.
+        if (empty($extension)) {
+            Log::warning("Impossibile determinare l'estensione per il file '{$originalName}'. Il file potrebbe essere salvato senza estensione.");
+        }
+
         // Genera un nome file univoco preservando l'estensione originale.
         // Il metodo store() di default non aggiunge l'estensione.
-        $filename = Str::random(40) . '.' . $file->extension();
+        $filename = Str::random(40) . ($extension ? '.' . $extension : '');
 
         // Salva il file in: storage/app/public/events/{event_id}/originals
         $path = $file->storeAs("events/{$event->id}/originals", $filename, 'public');
