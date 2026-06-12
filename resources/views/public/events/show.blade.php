@@ -33,12 +33,12 @@
             <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <div class="card photo-card">
                     @if($photo->photo_usage_type === 'public')
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#photoModal" data-preview-src="{{ Storage::url($photo->original_path) . '?v=' . $photo->updated_at->timestamp }}">
-                            <img src="{{ Storage::url($photo->thumbnail_path) . '?v=' . $photo->updated_at->timestamp }}" class="card-img-top" alt="Foto dell'evento" style="aspect-ratio: 4/3; object-fit: cover;">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#photoModal" data-preview-src="{{ asset('uploads/' . $photo->original_path) . '?v=' . $photo->updated_at->timestamp }}">
+                            <img src="{{ asset('uploads/' . $photo->thumbnail_path) . '?v=' . $photo->updated_at->timestamp }}" class="card-img-top" alt="Foto dell'evento" style="aspect-ratio: 4/3; object-fit: cover;">
                         </a>
                     @else
                         <div class="position-relative">
-                            <img src="{{ Storage::url($photo->thumbnail_path) . '?v=' . $photo->updated_at->timestamp }}" class="card-img-top" alt="Foto dell'evento" style="aspect-ratio: 4/3; object-fit: cover;">
+                            <img src="{{ asset('uploads/' . $photo->thumbnail_path) . '?v=' . $photo->updated_at->timestamp }}" class="card-img-top" alt="Foto dell'evento" style="aspect-ratio: 4/3; object-fit: cover;">
                             <div class="commercial-overlay"><i class="bi bi-cart-fill"></i></div>
                         </div>
                     @endif
