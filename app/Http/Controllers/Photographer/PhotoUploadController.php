@@ -39,21 +39,33 @@ class PhotoUploadController extends Controller
             ]);
         }
 
-        // Logica robusta per determinare l'estensione del file.
-        // 1. Prova con il metodo più affidabile basato sul mime-type (richiede l'estensione PHP `fileinfo`).
+        // Logica di debug e fallback per determinare l'estensione del file.
+        Log::debug("--- Inizio determinazione estensione per '{$originalName}' ---");
+
+        // 1. Prova con il metodo più affidabile basato sul mime-type.
         $extension = $file->extension();
-        // 2. Se fallisce, usa l'estensione fornita dal client come fallback.
+        Log::debug("Risultato da ->extension(): '{$extension}'");
+
+        // 2. Se fallisce, usa l'estensione fornita dal client.
         if (empty($extension)) {
             $extension = $file->getClientOriginalExtension();
+            Log::debug("->extension() vuoto. Risultato da ->getClientOriginalExtension(): '{$extension}'");
         }
-        // 3. Logga un avviso se l'estensione è ancora vuota.
+
+        // 3. Come ultima risorsa disperata, prova a estrarla dal nome del file.
+        if (empty($extension) && str_contains($originalName, '.')) {
+            $parts = explode('.', $originalName);
+            $extension = strtolower(end($parts));
+            Log::debug("Metodi precedenti falliti. Risultato da explode() su nome originale: '{$extension}'");
+        }
+
+        // 4. Logga un avviso se l'estensione è ancora vuota.
         if (empty($extension)) {
             Log::warning("Impossibile determinare l'estensione per il file '{$originalName}'. Il file potrebbe essere salvato senza estensione.");
         }
 
-        // Genera un nome file univoco preservando l'estensione originale.
-        // Il metodo store() di default non aggiunge l'estensione.
         $filename = Str::random(40) . ($extension ? '.' . $extension : '');
+        Log::debug("Nome file finale generato: '{$filename}'");
 
         // Salva il file in: storage/app/public/events/{event_id}/originals
         $path = $file->storeAs("events/{$event->id}/originals", $filename, 'public');
