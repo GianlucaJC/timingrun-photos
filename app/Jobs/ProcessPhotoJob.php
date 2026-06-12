@@ -51,6 +51,9 @@ class ProcessPhotoJob implements ShouldQueue
             $this->photo->update(['status' => 'processing']);
 
             $originalPath = $this->photo->original_path;            
+            $filename = basename($originalPath);
+            $eventDir = dirname(dirname($originalPath)); // Es: "events/1"
+
             // Legge l'immagine direttamente dal percorso del file per ottimizzare la memoria
             Log::debug("Percorso originale: " . Storage::disk('public')->path($originalPath));
 
@@ -60,8 +63,9 @@ class ProcessPhotoJob implements ShouldQueue
             $image = $manager->read(Storage::disk('public')->path($originalPath));
 
             // 1. Crea la miniatura pubblica (il contenuto dipende dal tipo di evento)
-            $publicThumbnailPath = str_replace('originals', 'thumbnails', $originalPath);
-            Storage::disk('public')->makeDirectory(dirname($publicThumbnailPath)); // Assicura che la cartella esista
+            $publicThumbnailDir = $eventDir . '/thumbnails';
+            $publicThumbnailPath = $publicThumbnailDir . '/' . $filename;
+            Storage::disk('public')->makeDirectory($publicThumbnailDir);
 
             if ($isCommercial) {
                 // Per uso commerciale: miniatura piccola, degradata e con watermark
@@ -77,8 +81,9 @@ class ProcessPhotoJob implements ShouldQueue
 
             // 2. Crea la miniatura per l'area fotografi (sempre di alta qualità, senza watermark)
             $adminThumbnail = (clone $image)->cover(480, 360);
-            $adminThumbnailPath = str_replace('originals', 'admin_thumbnails', $originalPath);
-            Storage::disk('public')->makeDirectory(dirname($adminThumbnailPath));
+            $adminThumbnailDir = $eventDir . '/admin_thumbnails';
+            $adminThumbnailPath = $adminThumbnailDir . '/' . $filename;
+            Storage::disk('public')->makeDirectory($adminThumbnailDir);
             Storage::disk('public')->put($adminThumbnailPath, (string) $adminThumbnail->toJpeg(85));
             Log::debug("Miniatura admin creata: " . $adminThumbnailPath);
 
@@ -87,8 +92,9 @@ class ProcessPhotoJob implements ShouldQueue
             if ($isCommercial) {
                 $watermarked = (clone $image)->scaleDown(1024);
                 $this->applyAggressiveWatermark($watermarked);
-                $watermarkedPath = str_replace('originals', 'watermarked', $originalPath);
-                Storage::disk('public')->makeDirectory(dirname($watermarkedPath)); // Assicura che la cartella esista
+                $watermarkedDir = $eventDir . '/watermarked';
+                $watermarkedPath = $watermarkedDir . '/' . $filename;
+                Storage::disk('public')->makeDirectory($watermarkedDir);
                 // Salva in JPEG con qualità 75% per scoraggiare il download
                 Storage::disk('public')->put($watermarkedPath, (string) $watermarked->toJpeg(75));
                 Log::debug("Immagine con watermark creata: " . $watermarkedPath);
