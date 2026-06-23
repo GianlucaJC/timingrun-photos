@@ -113,6 +113,15 @@ class ProcessPhotoJob implements ShouldQueue
             $bibRecognizer = new BibRecognitionService();
             $bibRecognizer->recognize($this->photo);
 
+            // 6. Se è la prima foto pubblicata per questo evento, avvia la sincronizzazione con l'API legacy
+            $publishedPhotosCount = Photo::where('event_id', $this->photo->event_id)
+                ->where('status', 'published')
+                ->count();
+
+            if ($publishedPhotosCount === 1) {
+                SyncEventPhotosToLegacyJob::dispatch();
+            }
+
         } catch (\Exception $e) {
             Log::error("Fallimento elaborazione foto ID: {$this->photo->id}. Errore: {$e->getMessage()}", ['trace' => $e->getTraceAsString()]);
             // Aggiorna lo stato usando una query diretta per evitare problemi con attributi "dirty"

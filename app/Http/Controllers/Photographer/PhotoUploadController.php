@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Photographer;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Jobs\ProcessPhotoJob;
+use App\Jobs\SyncEventPhotosToLegacyJob;
 use App\Models\Photo;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -101,7 +102,17 @@ class PhotoUploadController extends Controller
             $photo->admin_thumbnail_path
         ]));
 
+        $eventId = $photo->event_id;
         $photo->delete();
+
+        // Se non ci sono più foto pubblicate per questo evento, avvia la sincronizzazione con l'API legacy
+        $publishedPhotosCount = Photo::where('event_id', $eventId)
+            ->where('status', 'published')
+            ->count();
+
+        if ($publishedPhotosCount === 0) {
+            SyncEventPhotosToLegacyJob::dispatch();
+        }
 
         return response()->json(['success' => true]);
     }

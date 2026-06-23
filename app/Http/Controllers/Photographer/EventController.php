@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Photographer;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessPhotoJob;
+use App\Jobs\SyncEventPhotosToLegacyJob;
 use App\Models\Event;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
@@ -65,6 +66,9 @@ class EventController extends Controller
                     // 3c. Esegui il soft-delete degli eventi locali che non sono (o non sono più) presenti nella risposta dell'API.
                     Event::whereNotIn('api_id', $apiIds)->delete();
                 });
+
+                // Riconcilia lo stato delle foto degli eventi con l'applicativo legacy
+                SyncEventPhotosToLegacyJob::dispatch();
             }
         }
 
