@@ -187,18 +187,76 @@ a:hover {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 3rem;
-    color: rgba(255, 255, 255, 0.7);
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.8);
     opacity: 0;
     transition: opacity 0.3s ease;
-    cursor: pointer; /* Indica che c'è un'interazione, anche se non apre la modale */
+    cursor: pointer;
 }
 
 .photo-card:hover .commercial-overlay {
     opacity: 1;
 }
+
+/* Card delle foto selezionate */
+.photo-card {
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.photo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+.photo-card.selected {
+    border-color: var(--timingrun-orange) !important;
+    box-shadow: 0 0 15px rgba(255, 153, 0, 0.4);
+}
+
+/* Barra fluttuante del carrello */
+.cart-floating-bar {
+    position: fixed;
+    bottom: 48px; /* Posizionato sopra il footer fisso (circa 48px) */
+    left: 0;
+    width: 100%;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 2px solid var(--timingrun-orange);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+    z-index: 1020;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Bottoni e utilità */
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+.text-orange {
+    color: var(--timingrun-orange) !important;
+}
+.text-green {
+    color: var(--timingrun-green) !important;
+}
+.btn-orange {
+    background-color: var(--timingrun-orange);
+    border-color: var(--timingrun-orange);
+    color: #111;
+}
+.btn-orange:hover {
+    background-color: #e68a00;
+    border-color: #e68a00;
+    color: #000;
 }

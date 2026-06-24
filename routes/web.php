@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Photographer\EventController as PhotographerEventController;
 use App\Http\Controllers\Photographer\PhotoUploadController as PhotographerPhotoUploadController;
 use App\Http\Controllers\Public\EventController as PublicEventController;
+use App\Http\Controllers\Public\CartController as PublicCartController;
 
 Route::get('/', function () {
     // Reindirizza alla lista pubblica degli eventi
@@ -26,6 +27,13 @@ Route::name('public.')->group(function () {
     Route::get('events/{event:slug}', [PublicEventController::class, 'show'])->name('events.show');
     // Ricerca foto per pettorale in un evento
     Route::get('events/{event:slug}/search', [PublicEventController::class, 'search'])->name('events.search');
+
+    // Carrello e Promozioni
+    Route::get('cart', [PublicCartController::class, 'index'])->name('cart.index');
+    Route::post('cart/add', [PublicCartController::class, 'add'])->name('cart.add');
+    Route::post('cart/remove/{photo}', [PublicCartController::class, 'remove'])->name('cart.remove');
+    Route::post('cart/clear', [PublicCartController::class, 'clear'])->name('cart.clear');
+    Route::post('cart/set-promotion', [PublicCartController::class, 'setPromotion'])->name('cart.set_promotion');
 });
 
 // --- Area Fotografi ---
